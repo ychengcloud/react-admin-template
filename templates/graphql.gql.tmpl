@@ -1,0 +1,54 @@
+@@- $extra := .Extra @@
+fragment @@ .NameCamel @@Fields on @@ .NameCamel @@ {
+  @@- range .Fields  @@
+    @@- $field := . @@
+    @@- $isSet := false @@
+      @@- range $extra.skipfieldsingql @@
+        @@- if eq $field.NameCamel . @@
+        @@- $isSet = true @@
+        @@- end @@
+      @@- end @@
+    @@- if not $isSet @@
+      @@- if eq $field.JoinType "None" @@
+  @@ .NameLowerCamel  @@
+      @@- end @@
+    @@- end @@
+  @@- end @@
+}
+
+query @@ .NameCamelPlural @@ ($filter: @@ .NameCamel @@FilterInput, $orderBy: @@ .NameCamel @@Order, $offset: Int, $limit: Int){
+  @@ .NameLowerCamelPlural @@OffsetBased(filter: $filter, orderBy: $orderBy, offset: $offset, limit: $limit) {
+    edges {
+      node {
+        ...@@ .NameCamel @@Fields
+      }
+    }
+    totalCount
+  }
+}
+
+query @@ .NameCamel @@($id: ID!) {
+  @@ .NameLowerCamel @@(id: $id) {
+    ...@@ .NameCamel @@Fields
+  }
+}
+
+mutation @@ .NameCamel @@Create($input: @@ .NameCamel @@Input!) {
+  @@ .NameLowerCamel @@Create(input: $input) {
+    @@ .NameLowerCamel @@ {
+      ...@@ .NameCamel @@Fields
+    }
+  }
+}
+
+mutation @@ .NameCamel @@Update($ids: [ID]!, $input: @@ .NameCamel @@Input!) {
+  @@ .NameLowerCamel @@Update(ids: $ids, input: $input) {
+    count
+  }
+}
+
+mutation @@ .NameCamel @@Delete($ids: [ID]!) {
+  @@ .NameLowerCamel @@Delete(ids: $ids) {
+    count
+  }
+}

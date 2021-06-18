@@ -1,0 +1,16 @@
+import {currentUserQueryMock} from './current'
+
+@@- range $table := .Tables@@
+import { @@$table.NameLowerCamel@@CreateMock, @@$table.NameLowerCamel@@DeleteMock, @@$table.NameLowerCamel@@QueryMock, @@$table.NameLowerCamelPlural@@Mock, @@$table.NameLowerCamel@@UpdateMock } from './@@$table.NameLowerCamel@@';
+@@- end @@
+
+export default [
+    currentUserQueryMock,
+@@- range $table := .Tables@@
+    @@$table.NameLowerCamelPlural@@Mock,
+    @@$table.NameLowerCamel@@CreateMock,
+    @@$table.NameLowerCamel@@UpdateMock,
+    @@$table.NameLowerCamel@@DeleteMock,
+    @@$table.NameLowerCamel@@QueryMock,
+@@- end @@
+];

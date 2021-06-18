@@ -1,0 +1,77 @@
+@@- $extra := .Extra @@
+import Shai from 'shai';
+import { rand, util, text } from 'shai/es/mock'; // 也可以选用第三方库
+import { graphql } from 'msw'
+import { bulkDelete, bulkUpdate, create } from './_util';
+
+import { Org } from '@/generated/graphql'
+
+const { use, gen, access } = new Shai();
+
+const mock@@ .NameCamelPlural @@ = (() => {
+    const result: any[] = [];
+  for (let index = 0; index < 60; index++) {
+    result.push({
+      id: `${index}`,
+      @@- range .Fields  @@
+      @@- $field := . @@
+      @@- $isSet := false @@
+        @@- range $extra.skipfields @@
+          @@- if eq $field.NameCamel . @@
+          @@- $isSet = true @@
+          @@- end @@
+        @@- end @@
+        @@- if and (not $isSet) (not .IsPrimaryKey) @@
+          @@- if eq .MetaType.TSType "number" @@
+      '@@ .NameLowerCamel  @@|1-10000': 1,
+          @@- else @@
+      @@ .NameLowerCamel  @@: '@word()',
+          @@- end @@
+        @@- end @@
+      @@- end @@
+    })
+  }
+  return result;
+})()
+
+export default [
+  {
+    url: '/api/v1/@@ .NameLowerCamelPlural @@',
+    method: 'get',
+    response: ({ query }) => {
+      const { offset = 1, limit = 20 } = query;
+      return resultPageSuccess(offset, limit, mock@@ .NameCamelPlural @@);
+    },
+  },
+  {
+    url: '/api/v1/@@ .NameLowerCamelPlural @@',
+    method: 'post',
+    response: ({ body }) => {
+      let @@ .NameLowerCamel @@ = body;
+      @@ .NameLowerCamel @@.id = 1;
+      create(mock@@ .NameCamelPlural @@, @@ .NameLowerCamel @@);
+
+      return @@ .NameLowerCamel @@;
+    },
+  },
+  {
+    url: '/api/v1/@@ .NameLowerCamelPlural @@',
+    method: 'patch',
+    response: ({ body }) => {
+      let @@ .NameLowerCamel @@ = body;
+      update(mock@@ .NameCamelPlural @@, @@ .NameLowerCamel @@);
+
+      return @@ .NameLowerCamel @@;
+    },
+  },
+  {
+    url: '/api/v1/@@ .NameLowerCamelPlural @@:batchDelete',
+    method: 'post',
+    response: ({ body }) => {
+      let idList = body.idList;
+      batchDelete(mock@@ .NameCamelPlural @@, idList);
+
+      return {};
+    },
+  },
+] as MockMethod[];

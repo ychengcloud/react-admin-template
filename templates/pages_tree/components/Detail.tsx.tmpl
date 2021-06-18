@@ -1,0 +1,150 @@
+@@- $table := . @@
+@@- $extra := .Extra @@
+import React, { FC, useEffect, useRef } from "react";
+import { useIntl } from "react-intl";
+import moment from "moment";
+import { Form, Card, Row, Col, TreeSelect, Select } from "antd";
+import ProForm, { ProFormText } from "@ant-design/pro-form";
+
+import { 
+  @@ .NameCamel @@,
+@@- range .Fields @@
+@@- if not (eq .JoinType "None") @@
+  @@ .JoinTable.NameCamel @@,
+@@- end @@
+@@- end @@  
+} from "@/generated/graphql";
+import { FooterToolbar, PageContainer } from "@ant-design/pro-layout";
+
+interface DetailProps {
+  current: Partial<@@ .NameCamel @@> | undefined;
+@@- range .Fields @@
+@@- if not (eq .JoinType "None") @@
+  @@ .NameLowerCamel @@Data?:  @@ .JoinTable.NameCamel @@[];
+@@- end @@
+@@- end @@
+  onSubmit: (values: @@ .NameCamel @@) => void;
+}
+
+const formLayout = {
+  labelCol: { span: 7 },
+  wrapperCol: { span: 13 },
+};
+
+const Detail: FC<DetailProps> = (props) => {
+  const { formatMessage } = useIntl();
+  const formRef = useRef(null);
+  const [form] = Form.useForm();
+  const { 
+    current, 
+@@- range .Fields @@
+@@- if not (eq .JoinType "None") @@
+    @@ .NameLowerCamel @@Data,
+@@- end @@
+@@- end @@    
+    onSubmit
+  } = props;
+
+  useEffect(() => {
+    console.log("current: ", current);
+    if (current) {
+      form.setFieldsValue({
+        ...current,
+      });
+    }
+  }, [current]);
+
+  const handleFinish = async (values: { [key: string]: any }) => {
+    if (onSubmit) {
+      onSubmit(values as @@ .NameCamel @@);
+    }
+  };
+
+  return (
+    <ProForm
+      {...formLayout}
+      form={form}
+      submitter={{
+        render: (_, dom) => <FooterToolbar>{dom}</FooterToolbar>,
+      }}
+      onFinish={handleFinish}
+    >
+      <Row gutter={[16, { xs: 16, sm: 16 }]}>
+        <Col flex="1 1 auto" >
+          <Card
+            title="组织机构节点详情"
+
+          >
+@@- range .Fields @@
+@@- if eq .JoinType "None" @@
+@@- if and (not .IsPrimaryKey) (not .IsForeignKey) @@
+@@- $field := . @@
+  @@- $isSet := false @@
+  @@- range $extra.skipfieldsinform @@
+    @@- if eq $field.NameCamel . @@
+    @@- $isSet = true @@
+    @@- end @@
+  @@- end @@
+    @@- if not $isSet @@
+            <ProFormText
+              name="@@ .NameLowerCamel @@"
+              label={formatMessage({ id: "app.@@ $table.NameLowerCamel @@.@@ .NameLowerCamel @@" })}
+              rules={[
+                {
+                  type: "@@ .MetaType.TSType @@",
+                  @@- if .IsRequired  @@
+                  required: true,
+                  @@- end @@
+                  message: formatMessage({
+                    id: "app.@@ $table.NameLowerCamel @@.@@ .NameLowerCamel @@Required",
+                  }),
+                },
+              ]}
+            />
+    @@- end @@
+  @@- end @@
+@@- end @@
+@@- end @@
+          </Card>
+        </Col>
+        <Col lg={6} xs={24} >
+          <Card
+            title="组织机构"
+
+          >
+@@- range .Fields @@
+  @@- if or (eq .JoinType "BelongTo") (eq .JoinType "HasOne") @@
+            <ProForm.Item
+              name="@@ .NameLowerCamel @@Id"
+              label={formatMessage({ id: "app.@@ $table.NameLowerCamel @@.@@ .NameLowerCamel @@" })}
+              rules={[
+                {
+                  type: "string",
+                  @@- if .IsRequired  @@
+                  required: true,
+                  @@- end @@
+                  message: formatMessage({
+                    id: "app.@@ $table.NameLowerCamel @@.@@ .NameLowerCamel @@Required",
+                  }),
+                },
+              ]}
+            >
+              <Select
+                allowClear
+                placeholder="请选择"
+              >
+                
+                {@@ .NameLowerCamel @@Data && @@ .NameLowerCamel @@Data.map((item, i) => <Select.Option value={item.id}>{item.name}</Select.Option>)}
+                
+              </Select>
+            </ProForm.Item>
+  @@- end @@
+@@- end @@
+          </Card>
+        </Col>
+      </Row>
+    </ProForm>
+  );
+};
+
+export default Detail;

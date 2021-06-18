@@ -1,0 +1,130 @@
+@@- $extra := .Extra @@
+import Shai from 'shai';
+import { rand, util, text } from 'shai/es/mock'; // 也可以选用第三方库
+import { graphql } from 'msw'
+import { bulkDelete, bulkUpdate, create, pagination } from './_util';
+
+import { @@ .NameCamel @@ } from '@/generated/graphql'
+
+const { use, gen, access } = new Shai();
+
+const id = util.incre(1, 0);
+
+let mock@@ .NameCamelPlural @@: @@ .NameCamel @@[] = gen({
+  setting: 5,
+  id: use(id.val),
+  parentId: 0,
+  @@- range .Fields  @@
+  @@- $field := . @@
+  @@- if not (eq $field.NameLowerCamel "parentId") @@
+  @@- $isSet := false @@
+    @@- range $extra.skipfields @@
+      @@- if eq $field.NameCamel . @@
+      @@- $isSet = true @@
+      @@- end @@
+    @@- end @@
+    @@- if and (not $isSet) (not .IsPrimaryKey) @@
+      @@- if eq .MetaType.TSType "number" @@
+  @@ .NameLowerCamel  @@: use(rand.number),
+      @@- else @@
+  @@ .NameLowerCamel  @@: use(rand.str),
+      @@- end @@
+    @@- end @@
+  @@- end @@
+  @@- end @@
+}) as @@ .NameCamel @@[];
+
+const mockSub@@ .NameCamelPlural @@: @@ .NameCamel @@[] = gen({
+  setting: 5,
+  id: use(id.val),
+  parentId: 1,
+  @@- range .Fields  @@
+  @@- $field := . @@
+  @@- if not (eq $field.NameLowerCamel "parentId") @@
+  @@- $isSet := false @@
+    @@- range $extra.skipfields @@
+      @@- if eq $field.NameCamel . @@
+      @@- $isSet = true @@
+      @@- end @@
+    @@- end @@
+    @@- if and (not $isSet) (not .IsPrimaryKey) @@
+      @@- if eq .MetaType.TSType "number" @@
+  @@ .NameLowerCamel  @@: use(rand.number),
+      @@- else @@
+  @@ .NameLowerCamel  @@: use(rand.str),
+      @@- end @@
+    @@- end @@
+  @@- end @@
+  @@- end @@
+}) as @@ .NameCamel @@[];
+
+mock@@ .NameCamelPlural @@.push(...mockSub@@ .NameCamelPlural @@)
+const mock@@ .NameCamel @@Edges = () => {
+  return mock@@ .NameCamelPlural @@.map(item => {
+    return {
+      node: item,
+      cursor: item.id,
+    }
+  })
+}
+
+export const @@ .NameLowerCamelPlural @@Mock =
+  graphql.query('@@ .NameCamelPlural @@', (req, res, ctx) => {
+    const {offset, limit } = req.variables;
+    return res(
+      ctx.data({
+        @@ .NameLowerCamelPlural @@OffsetBased: {
+          edges: pagination(mock@@ .NameCamel @@Edges(), offset, limit),
+          totalCount: mock@@ .NameCamelPlural @@.length,
+        }
+      }),
+    )
+  })
+
+export const @@ .NameLowerCamel @@CreateMock =
+  graphql.mutation('@@ .NameCamel @@Create', (req, res, ctx) => {
+    const { input } = req.variables
+
+    create(mock@@ .NameCamelPlural @@, input)
+
+    return res(
+      ctx.data({
+        @@ .NameLowerCamel @@: input,
+      }),
+    )
+  })
+
+export const @@ .NameLowerCamel @@UpdateMock =
+  graphql.mutation('@@ .NameCamel @@Update', (req, res, ctx) => {
+    const { ids, input } = req.variables
+
+    const {updated} = bulkUpdate(mock@@ .NameCamelPlural @@, input, ids);
+    return res(
+      ctx.data({
+        count: updated.length,
+      }),
+    )
+  })
+
+export const @@ .NameLowerCamel @@DeleteMock =
+  graphql.mutation('@@ .NameCamel @@Delete', (req, res, ctx) => {
+    const { ids } = req.variables
+    const {list, deleted} = bulkDelete(mock@@ .NameCamelPlural @@, ids);
+    mock@@ .NameCamelPlural @@ = list;
+    return res(
+      ctx.data({
+        count: deleted.length,
+      }),
+    )
+  })
+
+export const @@ .NameLowerCamel @@QueryMock = graphql.query('@@ .NameCamel @@', (req, res, ctx) => {
+  const id = req.variables.id
+  console.log('req: ', req);
+  const @@ .NameLowerCamel @@ = mock@@ .NameCamelPlural @@.find((item) => item.id === id)
+  return res(
+    ctx.data({
+      @@ .NameLowerCamel @@,
+    }),
+  )
+})

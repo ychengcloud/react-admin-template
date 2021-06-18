@@ -1,0 +1,117 @@
+@@- $table := . @@
+@@- $extra := .Extra @@
+import { message } from "antd";
+
+import React, { useEffect, useState } from "react";
+import { useIntl } from "react-intl";
+
+import Detail from "../components/Detail";
+import useNavigator from "@/hooks/useNavigator";
+import { @@ .NameLowerCamel @@ListUrl, @@ .NameCamel @@UrlQueryParams } from "../urls";
+import {
+  @@ .NameCamel @@,
+  Scalars,
+  use@@ .NameCamel @@CreateMutation,
+  use@@ .NameCamel @@LazyQuery,
+  use@@ .NameCamel @@UpdateMutation,
+@@- range .Fields @@
+@@- if not (eq .JoinType "None") @@
+  use@@ .JoinTable.NameCamelPlural @@Query,
+@@- end @@
+@@- end @@
+} from "@/generated/graphql";
+import NotFoundPage from "@/pages/404";
+
+interface @@ .NameCamel @@DetailProps {
+  type: string;
+  id?: Scalars['ID'];
+  params: @@ .NameCamel @@UrlQueryParams;
+}
+
+const @@ .NameCamel @@Detail: React.FC<@@ .NameCamel @@DetailProps> = ({ type, id, params }) => {
+  const navigate = useNavigator();
+  const { formatMessage } = useIntl();
+  const [current, setCurrent] = useState<@@ .NameCamel @@>();
+
+@@- range .Fields @@
+@@- if not (eq .JoinType "None") @@
+  const { data: @@ .JoinTable.NameLowerCamelPlural @@ } = use@@ .JoinTable.NameCamelPlural @@Query({});
+@@- end @@
+@@- end @@
+
+  const [get@@ .NameCamel @@, { data, loading }] = use@@ .NameCamel @@LazyQuery({
+    variables: id
+      ? {
+          id,
+        }
+      : undefined,
+  });
+
+  const [@@ .NameLowerCamel @@CreateMutation] = use@@ .NameCamel @@CreateMutation({
+    onCompleted: () => {
+      message.success(formatMessage({ id: "global.tips.update.success" }));
+    },
+  });
+
+  const [@@ .NameLowerCamel @@UpdateMutation] = use@@ .NameCamel @@UpdateMutation({
+    onCompleted: () => {
+      message.success(formatMessage({ id: "global.tips.update.success" }));
+    },
+  });
+
+  useEffect(() => {
+    console.log("id: ", id);
+    if (type === "edit" && id) {
+      get@@ .NameCamel @@();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    console.log("data:", data);
+    const @@ .NameLowerCamel @@ = data?.@@ .NameLowerCamel @@;
+    if(!@@ .NameLowerCamel @@) return;
+    setCurrent(@@ .NameLowerCamel @@);
+  }, [data]);
+
+  if (data === null) {
+    return <NotFoundPage />;
+  }
+
+  const handleSubmit = async (values: @@ .NameCamel @@) => {
+    console.log("handleSubmit: ", values);
+
+    const hide = message.loading(formatMessage({id: "global.tips.updating"}));
+
+    if (type === "add") {
+      await @@ .NameLowerCamel @@CreateMutation({
+        variables: {
+          input: values,
+        },
+      });
+    } else {
+      await @@ .NameLowerCamel @@UpdateMutation({
+        variables: {
+          ids: [id],
+          input: values,
+        },
+      });
+    }
+
+    hide();
+    
+  };
+
+  return (
+    <Detail
+      current={current}
+@@- range .Fields @@
+@@- if not (eq .JoinType "None") @@
+      @@ .NameLowerCamel @@Data={@@ .JoinTable.NameLowerCamelPlural @@?.@@ .JoinTable.NameLowerCamelPlural @@OffsetBased?.edges?.map(edge => edge.node)}
+@@- end @@
+@@- end @@
+      onSubmit={handleSubmit}
+    />
+  );
+};
+
+export default @@ .NameCamel @@Detail;

@@ -1,0 +1,9 @@
+query CurrentUser {
+  currentUser {
+    name
+    permissions {
+      code
+      name
+    }
+  }
+}

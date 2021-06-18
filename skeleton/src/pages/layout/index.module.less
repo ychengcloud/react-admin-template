@@ -1,0 +1,18 @@
+.layout-page {
+  :global(.ant-layout) {
+    min-height: 100vh;
+  }
+}
+
+//为了更好的感官体验，延迟500ms显示加载中
+//https://zh-hans.reactjs.org/docs/concurrent-mode-patterns.html
+.delayed-spinner {
+  animation: 0s linear 0.5s forwards makeVisible;
+  visibility: hidden;
+}
+
+@keyframes makeVisible {
+  to {
+    visibility: visible;
+  }
+}

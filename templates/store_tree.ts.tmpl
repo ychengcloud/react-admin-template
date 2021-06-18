@@ -1,0 +1,45 @@
+import { flatListToTree, transform } from '@/utils/tree';
+
+import {
+    atom,
+    selector,
+    selectorFamily,
+} from 'recoil';
+
+import { @@ .NameCamel @@ } from '@/generated/graphql';
+
+export const @@ .NameLowerCamel @@ListState = atom({
+    key: '@@ .NameLowerCamel @@ListState',
+    default: [] as @@ .NameCamel @@[],
+})
+
+export const @@ .NameLowerCamel @@TreeSelectedNodeState = atom({
+    key: '@@ .NameLowerCamel @@TreeSelectedNodeState',
+    default: 0,
+});
+
+
+export const @@ .NameLowerCamel @@TreeState = selectorFamily({
+    key: '@@ .NameLowerCamel @@TreeState',
+    get: (selectable: boolean) => ({ get }) => {
+        const @@ .NameLowerCamel @@List = get(@@ .NameLowerCamel @@ListState)
+        const treeData = transform(@@ .NameLowerCamel @@List, selectable);
+
+        return flatListToTree(treeData, {
+            idKey: "key",
+            parentKey: "parentId",
+            childrenKey: "children",
+          });
+    },
+});
+
+
+export const @@ .NameLowerCamel @@SelectedState = selector({
+    key: '@@ .NameLowerCamel @@SelectedState',
+    get: ({ get }) => {
+        const parentId = get(@@ .NameLowerCamel @@TreeSelectedNodeState);
+        const list = get(@@ .NameLowerCamel @@ListState)
+
+       return list.filter((item: any) => item.parentId === parentId);
+    },
+});

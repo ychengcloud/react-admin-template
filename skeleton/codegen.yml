@@ -1,0 +1,21 @@
+overwrite: true
+schema: "http://localhost:7779/api/graphql"
+documents: "src/graphql/*.gql"
+generates:
+  ./src/generated/graphql.tsx:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-react-apollo'
+      # - 'typescript-urql'
+    config:
+      scalars:
+        ID: "string | number"
+      maybeValue: T | undefined
+      reactApolloVersion: 3
+      withHOC: false
+      withComponent: false
+      withHooks: true
+  ./src/generated/graphql.schema.json:
+    plugins:
+      - "introspection"

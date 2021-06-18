@@ -1,0 +1,77 @@
+import React, { FC, Key, useEffect, useState } from "react";
+import { Card, Col, Row } from "antd";
+import { PageContainer } from "@ant-design/pro-layout";
+import { DataNode } from "antd/lib/tree";
+
+import {
+  @@ .NameCamel @@,
+  @@ .NameCamel @@FilterInput,
+  Scalars,
+  use@@ .NameCamelPlural @@Query,
+} from "@/generated/graphql";
+
+import { flatListToTree, transform } from "@/utils/tree";
+
+import @@ .NameCamel @@Tree from "./containers/Tree";
+import @@ .NameCamel @@Table from "./containers/Table";
+
+const Component: FC = () => {
+  const [filters, setFilters] = useState<@@ .NameCamel @@FilterInput>();
+  const [@@ .NameLowerCamel @@List, set@@ .NameCamel @@List] = useState<@@ .NameCamel @@[]>([]);
+
+  const [selected, setSelected] = useState<Key>();
+
+  const { data: @@ .NameLowerCamelPlural @@, refetch } = use@@ .NameCamelPlural @@Query({
+    variables: {
+      filter: filters,
+    },
+  });
+
+  useEffect(() => {
+    const nodes =
+      @@ .NameLowerCamelPlural @@?.@@ .NameLowerCamelPlural @@OffsetBased?.edges.map((@@ .NameLowerCamel @@) => @@ .NameLowerCamel @@.node) || [];
+
+    set@@ .NameCamel @@List(nodes);
+  }, [@@ .NameLowerCamelPlural @@]);
+
+  const handleSelect = (selectedKeys: Key[]) => {
+    setSelected(selectedKeys[0]);
+  };
+
+  const handleRemove = async (ids: Scalars['ID'][]) => {
+    console.log("ids: ", ids);
+    refetch();
+  };
+
+  const transData = transform(@@ .NameLowerCamel @@List, false);
+
+  const treeData: DataNode[] = flatListToTree(transData, {
+    idKey: "key",
+    parentKey: "parentId",
+    childrenKey: "children",
+  });
+
+  return (
+    <PageContainer>
+      <Row gutter={[16, { xs: 16, sm: 16 }]}>
+        <Col xs={24} sm={24} md={6} lg={6} xl={4} xxl={4}>
+          <Card style={{ height: "100%" }}>
+            <@@ .NameCamel @@Tree data={treeData} onSelect={handleSelect} />
+          </Card>
+        </Col>
+        <Col xs={24} sm={24} md={18} lg={18} xl={20} xxl={20}>
+          <@@ .NameCamel @@Table
+            data={@@ .NameLowerCamel @@List.filter((item: @@ .NameCamel @@) => {
+              if (!selected) return item.parentId === '' || item.parentId === 0;
+
+              return item.parentId === selected;
+            })}
+            onRemove={handleRemove}
+          />
+        </Col>
+      </Row>
+    </PageContainer>
+  );
+};
+export default Component;
+

@@ -1,0 +1,119 @@
+import { message } from "antd";
+
+import React, { useEffect, useState } from "react";
+import { useIntl } from "react-intl";
+import { DataNode } from "antd/lib/tree";
+
+import {
+  @@ .NameCamel @@,
+  Scalars,
+  use@@ .NameCamel @@CreateMutation,
+  use@@ .NameCamel @@LazyQuery,
+  use@@ .NameCamelPlural @@Query,
+  use@@ .NameCamel @@UpdateMutation,
+} from "@/generated/graphql";
+import NotFoundPage from "@/pages/404";
+import { flatListToTree, transform } from "@/utils/tree";
+
+import Detail from "../components/Detail";
+import { @@ .NameLowerCamel @@ListUrl, @@ .NameCamel @@UrlQueryParams } from "../urls";
+
+interface @@ .NameCamel @@DetailProps {
+  type: string;
+  id?: Scalars['ID'];
+  params: @@ .NameCamel @@UrlQueryParams;
+}
+
+const @@ .NameCamel @@Detail: React.FC<@@ .NameCamel @@DetailProps> = ({ type, id, params }) => {
+  const { formatMessage } = useIntl();
+  const [current, setCurrent] = useState<@@ .NameCamel @@>();
+
+  const [@@ .NameLowerCamel @@List, set@@ .NameCamel @@List] = useState<@@ .NameCamel @@[]>([]);
+
+  const [get@@ .NameCamel @@, { data }] = use@@ .NameCamel @@LazyQuery({
+    variables: id
+      ? {
+          id,
+        }
+      : undefined,
+  });
+
+  const { data: @@ .NameLowerCamelPlural @@ } = use@@ .NameCamel @@sQuery();
+
+  const [@@ .NameLowerCamel @@CreateMutation] = use@@ .NameCamel @@CreateMutation({
+    onCompleted: () => {
+      message.success(formatMessage({ id: "global.tips.update.success" }));
+    },
+  });
+  const [@@ .NameLowerCamel @@UpdateMutation] = use@@ .NameCamel @@UpdateMutation({
+    onCompleted: () => {
+      message.success(formatMessage({ id: "global.tips.update.success" }));
+    },
+  });
+
+  useEffect(() => {
+    const nodes =
+      @@ .NameLowerCamelPlural @@?.@@ .NameLowerCamelPlural @@OffsetBased?.edges.map((@@ .NameLowerCamel @@) => @@ .NameLowerCamel @@.node) || [];
+
+    set@@ .NameCamel @@List(nodes);
+  }, [@@ .NameLowerCamelPlural @@]);
+
+  useEffect(() => {
+    console.log("id: ", id);
+    if (type === "edit" && id) {
+      get@@ .NameCamel @@();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    console.log("data:", data);
+    const @@ .NameLowerCamel @@ = data?.@@ .NameLowerCamel @@;
+    if (!@@ .NameLowerCamel @@) return;
+    setCurrent({
+      ...@@ .NameLowerCamel @@,
+      parentId: @@ .NameLowerCamel @@?.parentId === 0 ? undefined : @@ .NameLowerCamel @@?.parentId,
+    });
+  }, [data]);
+
+  const transData = transform(@@ .NameLowerCamel @@List, true);
+
+  const treeData: DataNode[] = flatListToTree(transData, {
+    idKey: "key",
+    parentKey: "parentId",
+    childrenKey: "children",
+  });
+
+  if (data === null) {
+    return <NotFoundPage />;
+  }
+
+  const handleSubmit = async (values: @@ .NameCamel @@) => {
+    console.log("handleSubmit: ", values);
+
+    const hide = message.loading(formatMessage({id: "global.tips.updating"}));
+
+    if (type === "add") {
+      await @@ .NameLowerCamel @@CreateMutation({
+        variables: {
+          input: values,
+        },
+      });
+    } else {
+      await @@ .NameLowerCamel @@UpdateMutation({
+        variables: {
+          ids: [id],
+          input: values,
+        },
+      });
+    }
+
+    hide();
+    
+  };
+
+  return (
+    <Detail current={current} parentData={treeData} onSubmit={handleSubmit} />
+  );
+};
+
+export default @@ .NameCamel @@Detail;

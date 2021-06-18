@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:
+  admin:
+    image: "node:lts-alpine"
+    user: "node:node"
+    working_dir: "/srv"
+    # mock模式下，msw会检测host的安全性，无法运行
+    command: ["yarn", "stage"]
+    stdin_open: true
+    ports:
+      - "3000:3000"
+    networks:
+      - hengha_net
+    restart: on-failure
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3000
+      - WEB_ROOT=/app/dist
+    volumes:
+      - "./:/srv:delegated"
+
+networks:
+  hengha_net:
+    external: true

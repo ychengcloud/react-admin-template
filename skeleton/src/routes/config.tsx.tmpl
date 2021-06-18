@@ -1,0 +1,107 @@
+import React, {
+  ComponentType,
+  lazy,
+  LazyExoticComponent,
+} from "react";
+
+import { PermissionEnum } from "@/types";
+
+const DefaultRouter = lazy(() => import("./DefaultRouter"));
+const NotFoundPage = lazy(() => import("@/pages/404"));
+const Dashboard = lazy(() => import("@/pages/dashboard"));
+const AppLayout = lazy(() => import("@/pages/layout"));
+
+@@- range $table := .Tables@@
+const @@$table.NameCamel@@ = lazy(() => import("@/pages/@@$table.NameLowerCamel@@"));
+const @@$table.NameCamel@@Create = lazy(() => import("@/pages/@@$table.NameLowerCamel@@/Create"));
+const @@$table.NameCamel@@Update = lazy(() => import("@/pages/@@$table.NameLowerCamel@@/Update"));
+@@- end @@
+
+
+export interface IRoute {
+  name: string;
+  locale?: string;
+  icon?: string;
+  // Path, like in basic prop
+  path?: string;
+  // Exact, like in basic prop
+  exact?: boolean;
+  // Preloader for lazy loading
+  // fallback: NonNullable<ReactNode> | null;
+  // Lazy Loaded component
+  component?: LazyExoticComponent<ComponentType<any>>;
+  // Sub routes
+  routes?: IRoute[];
+  // Redirect path
+  redirect?: string;
+  // If router is private, this is going to be true
+  private?: boolean;
+  hideInMenu?: boolean;
+  permissions?: PermissionEnum[];
+}
+
+export const routes: IRoute[] = [
+  {
+    path: "/",
+    name: "Home",
+    exact: false,
+    component: AppLayout,
+    routes: [
+      {
+        path: "/dashboard",
+        name: "Dashboard",
+        icon: "smile",
+        component: Dashboard,
+      },
+@@- range $table := .Tables@@
+      {
+        path: "/@@$table.NameLowerCamel@@",
+        name: "@@$table.NameCamel@@",
+        locale: "global.menu.@@$table.NameLowerCamel@@",
+        icon: "smile",
+        permissions: [PermissionEnum.Perm@@$table.NameCamel@@List],
+        component: DefaultRouter,
+        routes: [
+          {
+            path: "/@@$table.NameLowerCamel@@/list",
+            name: "@@$table.NameCamel@@ List",
+            locale: "global.menu.@@$table.NameLowerCamel@@.list",
+            icon: "smile",
+            component: @@$table.NameCamel@@,
+          },
+          {
+            path: "/@@$table.NameLowerCamel@@/add",
+            name: "@@$table.NameCamel@@ Create",
+            locale: "global.menu.@@$table.NameLowerCamel@@.create",
+            icon: "smile",
+            hideInMenu: true,
+            permissions: [PermissionEnum.Perm@@$table.NameCamel@@Create],
+            component: @@$table.NameCamel@@Create,
+          },
+          {
+            path: "/@@$table.NameLowerCamel@@/edit/:id",
+            name: "@@$table.NameCamel@@ Update",
+            locale: "global.menu.@@$table.NameLowerCamel@@.update",
+            icon: "smile",
+            hideInMenu: true,
+            permissions: [PermissionEnum.Perm@@$table.NameCamel@@Update],
+            component: @@$table.NameCamel@@Update,
+          },
+        ]
+
+      },
+@@- end @@
+      {
+        name: "NotFound",
+        locale: "global.menu.notfound",
+        component: NotFoundPage,
+      },
+    ],
+  },
+  {
+    name: "NotFound",
+    locale: "global.menu.notfound",
+    component: NotFoundPage,
+  },
+];
+

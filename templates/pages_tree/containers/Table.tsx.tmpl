@@ -1,0 +1,79 @@
+import { message, PaginationProps } from "antd";
+
+import React, { Key, useState } from "react";
+import { useIntl } from "react-intl";
+import { useRecoilState, useRecoilValue } from "recoil";
+import {
+  @@ .NameLowerCamel @@ListState,
+  @@ .NameLowerCamel @@SelectedState,
+} from "@/stores/@@ .NameLowerCamel @@";
+import {
+  @@ .NameCamel @@,
+  Scalars,
+  use@@ .NameCamel @@DeleteMutation,
+} from "@/generated/graphql";
+import TableList from "../components/Table";
+import useNavigator from "@/hooks/useNavigator";
+import { @@ .NameLowerCamel @@AddUrl, @@ .NameLowerCamel @@Url } from "../urls";
+
+interface TableProps {
+  data?: @@ .NameCamel @@[] | undefined;
+  onRemove: (ids: Scalars['ID'][]) => void;
+}
+
+const @@ .NameCamel @@TableContainer: React.FC<TableProps> = ({data, onRemove}) => {
+  const { formatMessage } = useIntl();
+  const navigate = useNavigator();
+
+  const [pagination, setPagination] = useState<Partial<PaginationProps>>({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
+
+  const [selectedRows, setSelectedRows] = useState<@@ .NameCamel @@[]>([]);
+
+  const [@@ .NameLowerCamel @@DeleteMutation] = use@@ .NameCamel @@DeleteMutation();
+
+  /**
+   * 删除节点
+   *
+   * @param selectedRows
+   */
+  const handleRemove = async (ids: Scalars['ID'][]) => {
+    console.log("ids: ", ids);
+    const hide = message.loading(formatMessage({ id: "global.tips.deleting" }));
+    try {
+      setSelectedRows([]);
+      @@ .NameLowerCamel @@DeleteMutation({
+        variables: {
+          ids,
+        },
+      }).then((data) => {
+        onRemove(ids);
+        hide();
+        message.success(formatMessage({ id: "global.tips.deleted.success" }));
+      });
+
+      return true;
+    } catch (error) {
+      hide();
+      message.error(formatMessage({ id: "global.tips.deleted.fail" }));
+      return false;
+    }
+  };
+
+  return (
+    <TableList
+      data={data}
+      pagination={pagination}
+      selectedRows={selectedRows}
+      onAdd={() => navigate(@@ .NameLowerCamel @@AddUrl)}
+      onUpdate={(id) => navigate(@@ .NameLowerCamel @@Url(id))}
+      onRemove={handleRemove}
+      onSelectedRows={(_, selectedRows) => setSelectedRows(selectedRows)}
+    ></TableList>
+  );
+};
+
+export default @@ .NameCamel @@TableContainer;

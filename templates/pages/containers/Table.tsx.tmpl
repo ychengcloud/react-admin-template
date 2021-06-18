@@ -1,0 +1,117 @@
+import { message, PaginationProps } from "antd";
+
+import React, { useEffect, useState } from "react";
+import { useIntl } from "react-intl";
+
+import { useRecoilValue } from "recoil";
+
+import {
+  @@ .NameCamel @@,
+  @@ .NameCamel @@FilterInput,
+  Scalars,
+  use@@ .NameCamel @@DeleteMutation,
+  use@@ .NameCamelPlural @@Query,
+} from "@/generated/graphql";
+import TableList from "../components/Table";
+import useNavigator from "@/hooks/useNavigator";
+import { @@ .NameLowerCamel @@AddUrl, @@ .NameLowerCamel @@Url } from "../urls";
+import { transformFilters } from "@/utils";
+
+const @@ .NameCamel @@TableContainer: React.FC = () => {
+  const { formatMessage } = useIntl();
+  const navigate = useNavigator();
+
+  const [@@ .NameLowerCamelPlural @@, set@@ .NameCamelPlural @@] = useState<@@ .NameCamel @@[]>();
+  const [filters, setFilters] = useState<@@ .NameCamel @@FilterInput>();
+
+  const [selectedRows, setSelectedRows] = useState<@@ .NameCamel @@[]>([]);
+
+  const onShowSizeChange = (current: number, pageSize: number) => {
+    setPagination((cur) => {
+      return {
+        ...cur,
+        current,
+        pageSize,
+      };
+    });
+  };
+  const onChange = (pagination: Partial<PaginationProps>) => {
+    setPagination(pagination);
+  };
+
+  const [pagination, setPagination] = useState<Partial<PaginationProps>>({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    showSizeChanger: true,
+    onShowSizeChange: onShowSizeChange,
+  });
+
+  const { data, refetch } = use@@ .NameCamelPlural @@Query({
+    variables: {
+      filter: filters,
+      offset: ((pagination?.current ?? 1) - 1) * (pagination?.pageSize ?? 10),
+      limit: pagination?.pageSize ?? 10,
+    }
+  });
+
+  const [@@ .NameLowerCamel @@DeleteMutation] = use@@ .NameCamel @@DeleteMutation({
+    onCompleted: () => {
+      message.success(formatMessage({ id: "global.tips.deleted.success" }));
+      setSelectedRows([]);
+      refetch();
+    },
+  });
+
+  useEffect(() => {
+    console.log("@@ .NameLowerCamelPlural @@: ", data);
+    if (!data) return;
+    setPagination((pre) => {
+      return { ...pre, total: data.@@ .NameLowerCamelPlural @@OffsetBased?.totalCount ?? 0 };
+    });
+
+    set@@ .NameCamelPlural @@(
+      data?.@@ .NameLowerCamelPlural @@OffsetBased?.edges.map((@@ .NameLowerCamel @@) => @@ .NameLowerCamel @@.node) || []
+    );
+  }, [data]);
+
+  /**
+   * 删除节点
+   *
+   * @param selectedRows
+   */
+  const handleRemove = async (ids: Scalars['ID'][]) => {
+    console.log("ids: ", ids);
+    const hide = message.loading(formatMessage({ id: "global.tips.deleting" }));
+    await @@ .NameLowerCamel @@DeleteMutation({
+      variables: {
+        ids,
+      },
+    })
+
+    hide();
+  };
+
+  const handleSearch = (filters: any) => {
+    const result = transformFilters(filters)
+    setFilters(result)
+  }
+  return (
+    <TableList
+      data={@@ .NameLowerCamelPlural @@}
+      pagination={pagination}
+      selectedRows={selectedRows}
+      onAdd={() => navigate(@@ .NameLowerCamel @@AddUrl)}
+      onUpdate={(id) => navigate(@@ .NameLowerCamel @@Url(id))}
+      onRemove={handleRemove}
+      onSearch={handleSearch}
+      onChange={onChange}
+      onSelectedRows={(_, selectedRows) => {
+        setSelectedRows(selectedRows)
+        console.log('selectedRows: ', selectedRows);
+      }}
+    ></TableList>
+  );
+};
+
+export default @@ .NameCamel @@TableContainer;

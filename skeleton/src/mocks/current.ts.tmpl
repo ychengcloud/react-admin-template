@@ -1,0 +1,39 @@
+import { CurrentMenusDocument, CurrentUserDocument } from '@/generated/graphql';
+
+
+import { graphql } from 'msw'
+
+export const currentUserQueryMock =
+  graphql.query('CurrentUser', (req, res, ctx) => {
+    return res(
+      ctx.data({
+        currentUser: {
+          name: 'decker',
+          permissions: [
+@@- range $table := .Tables@@
+          {
+            code: '@@$table.NameLowerCamel@@:list',
+            name: '@@$table.NameLowerCamel@@:list',
+          },
+          {
+            code: '@@$table.NameLowerCamel@@:create',
+            name: '@@$table.NameLowerCamel@@:create',
+          },
+          {
+            code: '@@$table.NameLowerCamel@@:get',
+            name: '@@$table.NameLowerCamel@@:get',
+          },
+          {
+            code: '@@$table.NameLowerCamel@@:update',
+            name: '@@$table.NameLowerCamel@@:update',
+          },
+          {
+            code: '@@$table.NameLowerCamel@@:delete',
+            name: '@@$table.NameLowerCamel@@:delete',
+          },
+@@- end @@
+          ],
+        }
+      }),
+    )
+  })

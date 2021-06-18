@@ -1,0 +1,73 @@
+import urlJoin from "url-join";
+import { stringify } from "qs";
+import { BulkAction, Dialog, Filters, FiltersAsDictWithMultipleValues, FiltersWithMultipleValues, Pagination, Sort, TabActionDialog } from "@/types";
+import { Scalars } from "@/generated/graphql";
+
+const @@ .NameLowerCamel @@Section = "/@@ .NameLowerCamel @@/";
+
+export const @@ .NameLowerCamel @@AddPath = urlJoin(@@ .NameLowerCamel @@Section, "add");
+export const @@ .NameLowerCamel @@EditPath = urlJoin(@@ .NameLowerCamel @@Section, "edit/");
+export const @@ .NameLowerCamel @@AddUrl = @@ .NameLowerCamel @@AddPath;
+export const @@ .NameLowerCamel @@ListPath = urlJoin(@@ .NameLowerCamel @@Section, "list");
+export type @@ .NameCamel @@ListUrlDialog =
+  | "publish"
+  | "unpublish"
+  | "delete"
+  | "export"
+  | TabActionDialog;
+
+export enum @@ .NameCamel @@ListUrlFiltersEnum {
+  priceFrom = "priceFrom",
+  priceTo = "priceTo",
+  status = "status",
+  stockStatus = "stockStatus",
+  query = "query"
+}
+export enum @@ .NameCamel @@ListUrlFiltersWithMultipleValues {
+  categories = "categories",
+  collections = "collections",
+  productTypes = "productTypes"
+}
+
+export enum @@ .NameCamel @@ListUrlFiltersAsDictWithMultipleValues {
+  attributes = "attributes"
+}
+export type @@ .NameCamel @@ListUrlFilters = Filters<@@ .NameCamel @@ListUrlFiltersEnum> &
+  FiltersWithMultipleValues<@@ .NameCamel @@ListUrlFiltersWithMultipleValues> &
+  FiltersAsDictWithMultipleValues<
+    @@ .NameCamel @@ListUrlFiltersAsDictWithMultipleValues
+  >;
+
+export enum @@ .NameCamel @@ListUrlSortField {
+  attribute = "attribute",
+  name = "name",
+  productType = "productType",
+  status = "status",
+  price = "price"
+}
+
+export type @@ .NameCamel @@ListUrlSort = Sort<@@ .NameCamel @@ListUrlSortField>;
+export interface @@ .NameCamel @@ListUrlQueryParams
+  extends BulkAction,
+  Dialog<@@ .NameCamel @@ListUrlDialog>,
+  @@ .NameCamel @@ListUrlFilters,
+  @@ .NameCamel @@ListUrlSort,
+  Pagination {
+
+  attributeId?: string;
+
+}
+
+export const @@ .NameLowerCamel @@ListUrl = (params?: @@ .NameCamel @@ListUrlQueryParams): string =>
+  @@ .NameLowerCamel @@ListPath + "?" + stringify(params, {
+    indices: false
+  });;
+
+export const @@ .NameLowerCamel @@Path = (id: Scalars['ID']) => urlJoin(@@ .NameLowerCamel @@EditPath + id);
+
+export type @@ .NameCamel @@UrlDialog = "remove" | "remove-variants";
+export type @@ .NameCamel @@UrlQueryParams = BulkAction & Dialog<@@ .NameCamel @@UrlDialog>;
+export const @@ .NameLowerCamel @@Url = (id: Scalars['ID'], params?: @@ .NameCamel @@UrlQueryParams) =>
+  @@ .NameLowerCamel @@Path(encodeURIComponent(id)) + "?" + stringify(params, {
+    indices: false
+  });

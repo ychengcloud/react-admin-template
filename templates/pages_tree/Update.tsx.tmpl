@@ -1,0 +1,39 @@
+import React from "react";
+import { RouteComponentProps } from "react-router-dom";
+import { parse as parseQs } from "qs";
+
+import { PageContainer } from "@ant-design/pro-layout";
+import useNavigator from "@/hooks/useNavigator";
+
+import { getArrayQueryParam } from "@/utils";
+import { @@ .NameLowerCamel @@ListUrl, @@ .NameCamel @@UrlQueryParams } from "./urls";
+import @@ .NameCamel @@Detail from "./containers/Detail";
+
+
+export const @@ .NameCamel @@Create: React.FC<RouteComponentProps<any>> = ({ match }) => {
+  const navigate = useNavigator();
+
+  const qs = parseQs(location.search.substr(1));
+  const params: @@ .NameCamel @@UrlQueryParams = qs;
+
+  const handleBack = () => navigate(@@ .NameLowerCamel @@ListUrl());
+
+  return (
+    <PageContainer
+      header={{
+        onBack: handleBack,
+      }}
+    >
+      <@@ .NameCamel @@Detail
+        type="edit"
+        id={decodeURIComponent(match.params.id)}
+        params={{
+          ...params,
+          ids: getArrayQueryParam(qs.ids as any),
+        }}
+      />
+    </PageContainer>
+  );
+};
+
+export default @@ .NameCamel @@Create;

@@ -1,0 +1,150 @@
+@@- $table := . @@
+@@- $extra := .Extra @@
+import { FooterToolbar, PageContainer } from "@ant-design/pro-layout";
+import type { ProColumns } from "@ant-design/pro-table";
+import ProTable from "@ant-design/pro-table";
+import { Button, Modal, PaginationProps, TablePaginationConfig } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+
+import React, { Suspense } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
+
+import SuspendFallbackLoading from "@/pages/layout/suspendFallbackLoading";
+import { @@ .NameCamel @@, Scalars } from "@/generated/graphql";
+
+interface TableProps {
+  data?: @@ .NameCamel @@[];
+  pagination?: PaginationProps;
+  selectedRows?: @@ .NameCamel @@[];
+  onAdd?: () => void;
+  onUpdate: (id: Scalars['ID']) => void;
+  onRemove: (ids: Scalars['ID'][]) => void;
+  onChange?: (pagination: TablePaginationConfig) => void;
+  onSelectedRows?: (selectedRowKeys: React.Key[], selectedRows: @@ .NameCamel @@[]) => void;
+}
+
+const TableList: React.FC<TableProps> = (props) => {
+  const {
+    data,
+    pagination,
+    selectedRows,
+    onAdd,
+    onUpdate,
+    onRemove,
+    onChange,
+    onSelectedRows,
+  } = props;
+
+  const { formatMessage } = useIntl();
+
+  const columns: ProColumns<@@ .NameCamel @@>[] = [
+    @@- range .Fields  @@
+    @@- $field := . @@
+      @@- $isSet := false @@
+      @@- range $extra.skipfieldsintable @@
+        @@- if eq $field.NameCamel . @@
+        @@- $isSet = true @@
+        @@- end @@
+      @@- end @@
+    @@- if and (not $isSet) (not .IsPrimaryKey) @@
+    {
+      title: formatMessage({ id: "app.@@$table.NameLowerCamel@@.@@.NameLowerCamel@@", defaultMessage: "@@.NameLowerCamel@@" }),
+      dataIndex: "@@ .NameLowerCamel  @@",
+      @@- if not .IsFilterable @@
+      hideInSearch: true,
+      @@- end @@
+
+    },
+    @@- end  @@
+    @@- end  @@
+    {
+      title: formatMessage({ id: "global.tips.operation" }),
+      dataIndex: "option",
+      valueType: "option",
+      render: (_, record: @@ .NameCamel @@) => [
+        <a
+          key="edit"
+          onClick={(e) => {
+            e.preventDefault();
+            onUpdate(String(record.id));
+          }}
+        >
+          {formatMessage({ id: "global.btn.edit" })}
+        </a>,
+        <a
+          key="delete"
+          onClick={(e) => {
+            e.preventDefault();
+            Modal.confirm({
+              title: "删除",
+              content: "确定删除吗？",
+              okText: "确认",
+              cancelText: "取消",
+              onOk: async () => {
+                onRemove([record.id]);
+              },
+            });
+          }}
+        >
+          {formatMessage({ id: "global.btn.delete" })}
+        </a>,
+      ],
+    },
+  ];
+
+  return (
+    <>
+      <ProTable<@@ .NameCamel @@>
+        headerTitle={formatMessage({
+          id: "app.@@ .NameLowerCamel @@.title",
+          defaultMessage: "项目管理",
+        })}
+        rowKey="id"
+        options={{ reload: false }}
+        toolBarRender={() => [
+          <Button type="primary" key="primary" onClick={onAdd}>
+            <PlusOutlined /> <FormattedMessage id="global.btn.create" />
+          </Button>,
+        ]}
+        request={undefined}
+        dataSource={data}
+        columns={columns}
+        pagination={pagination}
+        onChange={onChange}
+        rowSelection={{
+          selectedRowKeys: selectedRows?.map((row) => row.id),
+          onChange: onSelectedRows,
+        }}
+        search={false}
+      />
+
+      {selectedRows && selectedRows?.length > 0 && (
+        <FooterToolbar
+          extra={
+            <div>
+              <FormattedMessage
+                id="global.tips.chosen"
+                defaultMessage="已选择"
+                values={{
+                  count: (
+                    <a style={{ fontWeight: 600 }}>{selectedRows.length}</a>
+                  ),
+                }}
+              />
+            </div>
+          }
+        >
+          <Button
+            onClick={async () =>{
+              onRemove(selectedRows.map(row => row.id))
+            }}
+          >
+            <FormattedMessage id="global.btn.batchDeletion" />
+          </Button>
+        </FooterToolbar>
+      )}
+    </>
+  );
+};
+
+export default TableList;

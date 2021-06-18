@@ -1,0 +1,40 @@
+import { Tree } from "antd";
+
+import React, { useState } from "react";
+import { useIntl } from "react-intl";
+import { DataNode } from "antd/lib/tree";
+
+interface TreeProps {
+  data?: DataNode[] | undefined;
+  onSelect: (selectedKeys: Key[]) => void;
+}
+
+const @@ .NameCamel @@Tree: React.FC<TreeProps> = ({data, onSelect}) => {
+  const { formatMessage } = useIntl();
+
+  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+  const [autoExpandParent, setAutoExpandParent] = useState<boolean>(true);
+
+  const handleExpand = (expandedKeysValue: React.Key[]) => {
+    setExpandedKeys(expandedKeysValue);
+  };
+
+  const handleSelect = (
+    selectedKeys: any[],
+    { selected, selectedNodes }: any
+  ) => {
+    onSelect(selectedKeys);
+  };
+
+  return (
+    <Tree
+      expandedKeys={expandedKeys}
+      autoExpandParent={autoExpandParent}
+      onExpand={handleExpand}
+      treeData={data}
+      onSelect={handleSelect}
+    />
+  );
+};
+
+export default @@ .NameCamel @@Tree;
