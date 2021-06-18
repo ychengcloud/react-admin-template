@@ -15,7 +15,7 @@ export default () => (
       {
         key: 'github',
         title: <GithubOutlined />,
-        href: 'https://github.com/ychengcloud/react-antd-vite-admin',
+        href: 'https://github.com/ychengcloud/heidou',
         blankTarget: true,
       },
       {

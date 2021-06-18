@@ -13,7 +13,6 @@ const id = util.incre(1, 0);
 const totalCount = 50;
 let mock@@ .NameCamelPlural @@: @@ .NameCamel @@[] = gen({
   setting: 50,
-  id: use(id.val),
   @@- range .Fields  @@
   @@- $field := . @@
   @@- $isSet := false @@
@@ -22,11 +21,19 @@ let mock@@ .NameCamelPlural @@: @@ .NameCamel @@[] = gen({
       @@- $isSet = true @@
       @@- end @@
     @@- end @@
-    @@- if and (not $isSet) (not .IsPrimaryKey) @@
+    @@- if not $isSet @@
       @@- if eq .MetaType.TSType "number" @@
-  @@ .NameLowerCamel  @@: use(rand.number),
+        @@- if .IsPrimaryKey @@
+    @@ .NameLowerCamel  @@: use(id.val),
+        @@- else @@
+    @@ .NameLowerCamel  @@: use(rand.number),
+        @@- end @@
       @@- else @@
+        @@- if .IsPrimaryKey @@
+  @@ .NameLowerCamel  @@: use(util.uuid),
+        @@- else @@
   @@ .NameLowerCamel  @@: use(rand.str),
+        @@- end @@
       @@- end @@
     @@- end @@
   @@- end @@

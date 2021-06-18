@@ -1,22 +1,17 @@
 import React from "react";
 import { RouteComponentProps } from "react-router-dom";
-import { parse as parseQs } from "qs";
 
 import { PageContainer } from "@ant-design/pro-layout";
 import useNavigator from "@/hooks/useNavigator";
 
-import { getArrayQueryParam } from "@/utils";
-import { @@ .NameLowerCamel @@ListUrl, @@ .NameCamel @@UrlQueryParams } from "./urls";
+import { @@ .NameLowerCamel @@ListPath } from "./urls";
 import @@ .NameCamel @@Detail from "./containers/Detail";
 
 
 export const @@ .NameCamel @@Create: React.FC<RouteComponentProps<any>> = ({ match }) => {
   const navigate = useNavigator();
 
-  const qs = parseQs(location.search.substr(1));
-  const params: @@ .NameCamel @@UrlQueryParams = qs;
-
-  const handleBack = () => navigate(@@ .NameLowerCamel @@ListUrl());
+  const handleBack = () => navigate(@@ .NameLowerCamel @@ListPath);
 
   return (
     <PageContainer
@@ -26,10 +21,6 @@ export const @@ .NameCamel @@Create: React.FC<RouteComponentProps<any>> = ({ mat
     >
       <@@ .NameCamel @@Detail
         type="add"
-        params={{
-          ...params,
-          ids: getArrayQueryParam(qs.ids as any),
-        }}
       />
     </PageContainer>
   );
